@@ -37,6 +37,8 @@ _entry_price = 0
 _entry_seq = -1
 # The one-USDC probe: 0 = still to buy, 1 = bought and still to sell, 2 = done.
 _compliance = 0
+# One-shot rule: allow at most one strategy round trip after the probe.
+_strategy_done = False
 
 
 def _buy(state, notional):
@@ -61,7 +63,7 @@ def _sell(held):
 
 
 def on_batch(state, batch):
-    global _entry_price, _entry_seq, _compliance
+    global _entry_price, _entry_seq, _compliance, _strategy_done
 
     bar = None
     for b in batch["bars"]:
@@ -102,6 +104,8 @@ def on_batch(state, batch):
         return []
 
     _entry_seq = -1
+    if _strategy_done:
+        return []
     # Wait for a full lookback so the peak and the trend reference are real.
     if len(_closes) > LOOKBACK and len(_closes) > TREND_LOOKBACK:
         close = _closes[-1]
@@ -112,6 +116,7 @@ def on_batch(state, batch):
             if order is not None:
                 _entry_price = close
                 _entry_seq = seq
+                _strategy_done = True
                 return [order]
     return []
 
