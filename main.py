@@ -37,7 +37,6 @@ _entry_price = 0
 _entry_seq = -1
 # The one-USDC probe: 0 = still to buy, 1 = bought and still to sell, 2 = done.
 _compliance = 0
-# One-shot rule: allow at most one strategy round trip after the probe.
 _strategy_done = False
 
 
